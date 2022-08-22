@@ -1,4 +1,4 @@
-# Markdown Language Server in a snap #
+# [Markdown Language Server](https://github.com/microsoft/vscode/tree/main/extensions/markdown-language-features/server) in a snap #
 
 -------------------------------------------------------------------------------
 
