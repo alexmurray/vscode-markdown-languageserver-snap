@@ -33,7 +33,9 @@ parts:
   vscode-markdown-languageserver:
     plugin: npm
     source: https://github.com/microsoft/vscode.git
-    npm-node-version: 16.17.0
+    build-environment:
+      - NODEJS_VERSION: "v16.17.1"
+    npm-node-version: $NODEJS_VERSION
     # add packages so we can npm install on vscode itself as it's node
     # dependecies are needed to compile the json-languageserver
     build-packages:
@@ -55,7 +57,7 @@ parts:
       else
         ARCH=$SNAP_ARCH
       fi
-      curl -s https://nodejs.org/dist/v16.17.0/node-v16.17.0-linux-$ARCH.tar.gz | tar xzf - -C "$SNAPCRAFT_PART_INSTALL" --strip-components=1
+      curl -s https://nodejs.org/dist/"${NODEJS_VERSION}"/node-"${NODEJS_VERSION}"-linux-$ARCH.tar.gz | tar xzf - -C "$SNAPCRAFT_PART_INSTALL" --strip-components=1
       npm install -g yarn
       npm install -g gulp
       yarn install
