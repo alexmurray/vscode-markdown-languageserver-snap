@@ -34,8 +34,8 @@ parts:
     plugin: npm
     source: https://github.com/microsoft/vscode.git
     build-environment:
-      - NODEJS_VERSION: "v18.14.1"
-    npm-node-version: $NODEJS_VERSION
+      - NODEJS_FIXED_VERSION: "v16.19.0"
+    npm-node-version: $NODEJS_FIXED_VERSION
     # add packages so we can npm install on vscode itself as it's node
     # dependecies are needed to compile the json-languageserver
     build-packages:
@@ -57,7 +57,7 @@ parts:
       else
         ARCH=$SNAP_ARCH
       fi
-      curl -s https://nodejs.org/dist/"${NODEJS_VERSION}"/node-"${NODEJS_VERSION}"-linux-$ARCH.tar.gz | tar xzf - -C "$SNAPCRAFT_PART_INSTALL" --strip-components=1
+      curl -s https://nodejs.org/dist/"${NODEJS_FIXED_VERSION}"/node-"${NODEJS_FIXED_VERSION}"-linux-$ARCH.tar.gz | tar xzf - -C "$SNAPCRAFT_PART_INSTALL" --strip-components=1
       npm install -g yarn
       npm install -g gulp
       yarn install
