@@ -60,6 +60,18 @@ parts:
       curl -s https://nodejs.org/dist/"${NODEJS_FIXED_VERSION}"/node-"${NODEJS_FIXED_VERSION}"-linux-$ARCH.tar.gz | tar xzf - -C "$SNAPCRAFT_PART_INSTALL" --strip-components=1
       npm install -g yarn
       npm install -g gulp
+      # @vscode/ripgrep fails to install behind https proxy as vscode-ripgrep
+      # did - https://github.com/microsoft/vscode-ripgrep/issues/26 - and we
+      # don't need it anyway for the server - same for playwright and electron -
+      # also remove vscode-telemetry-extractor since this pulls in
+      # vscode-ripgrep as a dependency too and is also not needed to build the
+      # vscode-html-languageserver extension so is safe to remove
+      jq 'del(.dependencies."@vscode/ripgrep")' package.json | sponge package.json
+      jq 'del(.dependencies."@vscode/ripgrep")' remote/package.json | sponge remote/package.json
+      jq 'del(.devDependencies."@vscode/telemetry-extractor")' package.json | sponge package.json
+      jq 'del(.devDependencies.electron)' package.json | sponge package.json
+      jq 'del(.devDependencies.playwright)' package.json | sponge package.json
+      yarn why @vscode/ripgrep
       yarn install
       cd extensions/markdown-language-features/server
       yarn install
