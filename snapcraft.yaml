@@ -41,6 +41,7 @@ parts:
     build-packages:
       - pkg-config
       - python
+      - libkrb5-dev
       - libx11-dev
       - libxkbfile-dev
       - libsecret-1-dev
