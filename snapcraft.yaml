@@ -73,6 +73,7 @@ parts:
       jq 'del(.devDependencies.electron)' package.json | sponge package.json
       jq 'del(.devDependencies.playwright)' package.json | sponge package.json
       yarn why @vscode/ripgrep
+      npx node-gyp install
       yarn install
       cd extensions/markdown-language-features/server
       yarn install
