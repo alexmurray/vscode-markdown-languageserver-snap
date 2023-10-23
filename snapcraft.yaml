@@ -34,7 +34,7 @@ parts:
     plugin: npm
     source: https://github.com/microsoft/vscode.git
     build-environment:
-      - NODEJS_VERSION: "v18.18.2"
+      - NODEJS_VERSION: "v18.17.1"
     npm-node-version: $NODEJS_VERSION
     # add packages so we can npm install on vscode itself as it's node
     # dependecies are needed to compile the json-languageserver
@@ -73,7 +73,6 @@ parts:
       jq 'del(.devDependencies.electron)' package.json | sponge package.json
       jq 'del(.devDependencies.playwright)' package.json | sponge package.json
       yarn why @vscode/ripgrep
-      npx node-gyp install
       yarn install
       cd extensions/markdown-language-features/server
       yarn install
