@@ -82,4 +82,5 @@ parts:
       # fixup install location
       mkdir -p $SNAPCRAFT_PART_INSTALL/usr/local/share/.config
       mv /usr/local/share/.config/yarn $SNAPCRAFT_PART_INSTALL/usr/local/share/.config
+      for bin in node-gyp; do rm $SNAPCRAFT_PART_INSTALL/bin/$bin; ln -s ../usr/local/share/.config/yarn/global/node_modules/.bin/$bin $SNAPCRAFT_PART_INSTALL/bin/$bin; done
       snapcraftctl set-version $(jq -r .version package.json)
