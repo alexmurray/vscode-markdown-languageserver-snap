@@ -1,4 +1,5 @@
 name: vscode-markdown-languageserver
+version: 0.5.0-alpha.7
 summary: Markdown Language Server
 description: |
   Server capabilities
@@ -13,18 +14,13 @@ description: |
     * Go to definition from links to headers or link definitions.
     * (experimental) Pull diagnostics (validation) for links.
 
-adopt-info: vscode-markdown-languageserver
 grade: stable
 confinement: strict
 base: core20
 
-layout:
-  /usr/local/share/.config/yarn:
-    bind: $SNAP/usr/local/share/.config/yarn
-
 apps:
   vscode-markdown-languageserver:
-    command: bin/node $SNAP/usr/local/share/.config/yarn/global/node_modules/vscode-markdown-languageserver/out/node/main.js
+    command: bin/node $SNAP/lib/node_modules/vscode-markdown-languageserver/out/node/main.js
     plugs:
       - network
       - home
@@ -32,21 +28,11 @@ apps:
 parts:
   vscode-markdown-languageserver:
     plugin: npm
-    source: https://github.com/microsoft/vscode.git
+    source: https://github.com/microsoft/vscode-markdown-languageserver.git
+    source-tag: v$SNAPCRAFT_PROJECT_VERSION
     build-environment:
       - NODEJS_VERSION: "v20.15.1"
     npm-node-version: $NODEJS_VERSION
-    # add packages so we can npm install on vscode itself as it's node
-    # dependecies are needed to compile the json-languageserver
-    build-packages:
-      - pkg-config
-      - python
-      - libkrb5-dev
-      - libx11-dev
-      - libxkbfile-dev
-      - libsecret-1-dev
-      - jq
-      - moreutils
     override-build: |
       # install the official nodejs so we get the expected npm version
       if [ $SNAP_ARCH == "amd64" ]; then
@@ -59,28 +45,13 @@ parts:
         ARCH=$SNAP_ARCH
       fi
       curl -s https://nodejs.org/dist/"${NODEJS_VERSION}"/node-"${NODEJS_VERSION}"-linux-$ARCH.tar.gz | tar xzf - -C "$SNAPCRAFT_PART_INSTALL" --strip-components=1
-      npm install -g yarn
-      npm install -g gulp
-      # @vscode/ripgrep fails to install behind https proxy as vscode-ripgrep
-      # did - https://github.com/microsoft/vscode-ripgrep/issues/26 - and we
-      # don't need it anyway for the server - same for playwright and electron -
-      # also remove vscode-telemetry-extractor since this pulls in
-      # vscode-ripgrep as a dependency too and is also not needed to build the
-      # vscode-html-languageserver extension so is safe to remove
-      jq 'del(.dependencies."@vscode/ripgrep")' package.json | sponge package.json
-      jq 'del(.dependencies."@vscode/ripgrep")' remote/package.json | sponge remote/package.json
-      jq 'del(.devDependencies."@vscode/telemetry-extractor")' package.json | sponge package.json
-      jq 'del(.devDependencies.electron)' package.json | sponge package.json
-      jq 'del(.devDependencies.playwright)' package.json | sponge package.json
-      yarn why @vscode/ripgrep
-      yarn global add node-gyp
-      yarn install
-      cd extensions/markdown-language-features/server
-      yarn install
-      yarn run compile
-      yarn global add --prefix $SNAPCRAFT_PART_INSTALL $(yarn pack . | grep "Wrote tarball to" | cut -f2 -d'"')
-      # fixup install location
-      mkdir -p $SNAPCRAFT_PART_INSTALL/usr/local/share/.config
-      mv /usr/local/share/.config/yarn $SNAPCRAFT_PART_INSTALL/usr/local/share/.config
-      for bin in node-gyp; do rm $SNAPCRAFT_PART_INSTALL/bin/$bin; ln -s ../usr/local/share/.config/yarn/global/node_modules/.bin/$bin $SNAPCRAFT_PART_INSTALL/bin/$bin; done
-      snapcraftctl set-version $(jq -r .version package.json)
+      npm install
+      npm run compile
+      npm run dist
+      npm install -g --prefix $SNAPCRAFT_PART_INSTALL $(npm pack . | grep "Wrote tarball to" | cut -f2 -d'"')
+      rm $SNAPCRAFT_PART_INSTALL/lib/node_modules/vscode-markdown-languageserver
+      mv $(pwd) $SNAPCRAFT_PART_INSTALL/lib/node_modules/vscode-markdown-languageserver
+      # TODO: what about any other bits?
+      rm -rf $SNAPCRAFT_PART_INSTALL/lib/node_modules/vscode-markdown-languageserver/.git
+
+
